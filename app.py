@@ -9,7 +9,7 @@ import pytz
 # --- GEMINI AYARI ---
 # Kendi API anahtarını buraya tırnak içine yapıştır
 GOOGLE_API_KEY = "AIzaSyATCzTcixZk2AJ8OzmvRAMaXvnvZ2t69vk"
-genai.configure(api_key=GOOGLE_API_KE)
+genai.configure(api_key=GOOGLE_API_KEY)
 model = genai.GenerativeModel('gemini-pro')
 
 # --- SAYFA VE DİL AYARLARI ---
