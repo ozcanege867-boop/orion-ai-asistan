@@ -7,14 +7,15 @@ from datetime import datetime
 import pytz
 
 # --- GEMINI AYARI ---
-# LÜTFEN DİKKAT: Anahtarı " " işaretleri arasına yapıştırın.
-MY_API_KEY = "AIzaSyDQLCWp_Tq_mg1z9cqT78ABajV6jv5UT7I" 
+# ÖNEMLİ: Yeni bir API anahtarı alıp buraya yapıştırın.
+MY_API_KEY = "BURAYA_YENI_API_ANAHTARINI_YAPISTIR" 
 
 try:
     genai.configure(api_key=MY_API_KEY)
+    # 404 hatasını önlemek için 'gemini-pro' en güvenli modeldir
     model = genai.GenerativeModel('gemini-pro')
 except Exception as e:
-    st.error(f"Sistem Başlatılamadı: {e}")
+    st.error(f"Başlatma Hatası: {e}")
 
 # --- AYARLAR ---
 st.set_page_config(page_title="ORION AI", page_icon="🚀", layout="centered")
@@ -25,21 +26,18 @@ TR_TIMEZONE = pytz.timezone('Europe/Istanbul')
 def get_answer(query):
     q_lower = query.lower().strip()
     
-    # Özel durum: Beşiktaş gibi çok anlamlı kelimeleri spor kulübüne yönlendir
-    if "beşiktaş" in q_lower and "ne zaman kuruldu" in q_lower:
-        query = "Beşiktaş Jimnastik Kulübü kuruluş tarihi"
+    # 1. Saat ve Tarih (Her zaman çalışır)
+    if "saat kaç" in q_lower:
+        return f"Şu an saat {datetime.now(TR_TIMEZONE).strftime('%H:%M')}"
 
-    # 1. Gemini API Sorgusu (Öncelikli)
+    # 2. Gemini API Sorgusu
     try:
         response = model.generate_content(f"Sen ORION'sun. Kısa cevap ver: {query}")
         if response.text:
             return response.text
     except Exception as e:
-        # Gemini hata verirse Wikipedia'ya düşer
-        try:
-            return wikipedia.summary(query, sentences=1)
-        except:
-            return "Şu an bağlantı kuramıyorum, lütfen API anahtarını kontrol et."
+        # Hata neyse onu ekranda gösteriyoruz ki sorunu anlayalım
+        return f"Sistem Hatası: {str(e)}"
 
 # --- WEB ARAYÜZÜ ---
 st.markdown("<h1 style='text-align: center; color: #FF4B4B;'>🚀 ORION AI</h1>", unsafe_allow_html=True)
@@ -66,7 +64,7 @@ if girdi:
             st.info(f"**TR:** {cevap_tr}")
             st.warning(f"**EN:** {cevap_en}")
 
-        # Seslendirme
+        # Web Seslendirme
         safe_en = cevap_en.replace('"', '').replace("'", "")
         st.components.v1.html(f"""
             <script>
