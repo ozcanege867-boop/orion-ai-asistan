@@ -7,87 +7,60 @@ from datetime import datetime
 import pytz
 
 # --- GEMINI AYARI ---
-# API anahtarını buraya tırnak içine yapıştır
-GOOGLE_API_KEY = "AIzaSyDQLCWp_Tq_mg1z9cqT78ABajV6jv5UT7I"
+# Kendi anahtarını buraya yapıştır
+MY_API_KEY = "AIzaSyATCzTcixZk2AJ8OzmvRAMaXvnvZ2t69vk"
 
+# Gemini'yi başlatmayı dene
 try:
-    # Önce anahtarı ayarla
-    genai.configure(api_key=GOOGLE_API_KEY)
-    # Modeli 1.5-flash olarak güncelle (Daha hızlı ve günceldir)
+    genai.configure(api_key=MY_API_KEY)
+    # 1.5-flash en stabil ve hızlı modeldir
     model = genai.GenerativeModel('gemini-1.5-flash')
 except Exception as e:
-    st.error(f"Sistem başlatılamadı: {e}")
+    st.error(f"Başlatma Hatası: {e}")
 
-def get_gemini_response(prompt):
-    """Sorguyu Gemini API'ye gönderir."""
-    try:
-        # Gemini'ye gönder
-        response = model.generate_content(f"Senin adın ORION. Bursa Bilim Şenliği asistanısın. Kısa ve net cevap ver: {prompt}")
-        return response.text
-    except Exception as e:
-        # Eğer bir hata olursa, hatayı ekranda gizlice logla veya göster
-        print(f"Gemini Hatası: {e}") 
-        return None
-
-# --- SAYFA VE DİL AYARLARI ---
+# --- AYARLAR ---
 st.set_page_config(page_title="ORION AI", page_icon="🚀", layout="centered")
 translator = Translator()
 wikipedia.set_lang("tr")
 TR_TIMEZONE = pytz.timezone('Europe/Istanbul')
 
-# --- SABİT VERİLER (YEDEK) ---
-OFFLINE_KNOWLEDGE = {
-    "sen kimsin": "Ben ORION, Bursa Bilim Şenliği için Gemini Pro altyapısıyla geliştirilmiş yapay zekayım.",
-    "adın ne": "Adım ORION.",
-    "nasılsın": "Tüm sistemlerim aktif, harikayım. Ya siz?"
-}
-
-def get_gemini_response(prompt):
-    """Sorguyu Gemini API'ye gönderir."""
-    try:
-        response = model.generate_content(f"Senin adın ORION. Bursa Bilim Şenliği asistanısın. Kısa ve net cevap ver: {prompt}")
-        return response.text
-    except:
-        return None
-
 def get_answer(query):
     q_lower = query.lower().strip()
     
-    # 1. Özel Saat Sorgusu
+    # 1. Sabit Sorgular (Saat vb.)
     if "saat kaç" in q_lower:
-        return f"Şu an Türkiye saati ile {datetime.now(TR_TIMEZONE).strftime('%H:%M')}."
+        return f"Şu an saat {datetime.now(TR_TIMEZONE).strftime('%H:%M')}"
 
-    # 2. Gemini API Sorgusu (Ana Zeka)
-    gemini_cevap = get_gemini_response(query)
-    if gemini_cevap:
-        return gemini_cevap
-
-    # 3. Yedek Sistem
-    if q_lower in OFFLINE_KNOWLEDGE:
-        return OFFLINE_KNOWLEDGE[q_lower]
-    
+    # 2. Gemini API Sorgusu
     try:
-        return wikipedia.summary(q_lower, sentences=1)
-    except:
-        return "Şu an bağlantı kuramıyorum ama üzerinde çalışıyorum."
+        # Gemini'ye soruyu gönderiyoruz
+        response = model.generate_content(f"Kısa ve net bir cevap ver: {query}")
+        if response and response.text:
+            return response.text
+    except Exception as e:
+        # Eğer Gemini çalışmazsa buraya ne olduğunu yazdırıyoruz
+        return f"Hata oluştu: {str(e)}"
 
-# --- WEB ARAYÜZÜ ---
-st.markdown("<h1 style='text-align: center; color: #FF4B4B;'>🚀 ORION AI </h1>", unsafe_allow_html=True)
+    return "Üzgünüm, cevap üretemedim."
 
+# --- ARAYÜZ ---
+st.markdown("<h1 style='text-align: center; color: #FF4B4B;'>🚀 ORION AI</h1>", unsafe_allow_html=True)
+
+# Girdi Alanları
 col1, col2 = st.columns([1, 5])
 with col1:
-    ses_girdisi = speech_to_text(start_prompt="🎤", stop_prompt="⏹️", language='tr', key='voice')
-
+    ses = speech_to_text(start_prompt="🎤", stop_prompt="⏹️", language='tr', key='voice')
 with col2:
-    # İSTEDİĞİN DEĞİŞİKLİK: Yazı Girişi Yazısı Güncellendi
-    yazi_girdisi = st.chat_input("ORION'a bir soru sor...")
+    yazi = st.chat_input("ORION'a bir soru sor...")
 
-girdi = ses_girdisi if ses_girdisi else yazi_girdisi
+girdi = ses if ses else yazi
 
 if girdi:
     st.chat_message("user").write(girdi)
-    with st.spinner("ORION düşünüyor..."):
+    with st.spinner("ORION cevaplıyor..."):
         cevap_tr = get_answer(girdi)
+        
+        # İngilizceye çevir (Seslendirme için)
         try:
             cevap_en = translator.translate(cevap_tr, src='tr', dest='en').text
         except:
@@ -97,7 +70,7 @@ if girdi:
             st.info(f"**TR:** {cevap_tr}")
             st.warning(f"**EN:** {cevap_en}")
 
-        # Web Seslendirme (JavaScript)
+        # Web Seslendirme
         safe_en = cevap_en.replace('"', '').replace("'", "")
         st.components.v1.html(f"""
             <script>
@@ -111,5 +84,4 @@ if girdi:
 # --- İLETİŞİM ---
 st.divider()
 with st.expander("📬 İletişim"):
-    st.write("Sorularınız ve fikirleriniz için:")
     st.code("iletisim.orionai@gmail.com", language="text")
