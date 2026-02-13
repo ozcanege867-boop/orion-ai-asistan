@@ -21,7 +21,8 @@ TR_TIMEZONE = pytz.timezone('Europe/Istanbul')
 # --- SABİT VERİLER (YEDEK) ---
 OFFLINE_KNOWLEDGE = {
     "sen kimsin": "Ben ORION, Bursa Bilim Şenliği için Gemini Pro altyapısıyla geliştirilmiş yapay zekayım.",
-    "adın ne": "Adım ORION."
+    "adın ne": "Adım ORION.",
+    "nasılsın": "Tüm sistemlerim aktif, harikayım. Ya siz?"
 }
 
 def get_gemini_response(prompt):
@@ -35,7 +36,7 @@ def get_gemini_response(prompt):
 def get_answer(query):
     q_lower = query.lower().strip()
     
-    # 1. Özel Saat Sorgusu (Hata payı olmaması için sabit tutuyoruz)
+    # 1. Özel Saat Sorgusu
     if "saat kaç" in q_lower:
         return f"Şu an Türkiye saati ile {datetime.now(TR_TIMEZONE).strftime('%H:%M')}."
 
@@ -44,7 +45,7 @@ def get_answer(query):
     if gemini_cevap:
         return gemini_cevap
 
-    # 3. Yedek Sistem (Eğer API hata verirse)
+    # 3. Yedek Sistem
     if q_lower in OFFLINE_KNOWLEDGE:
         return OFFLINE_KNOWLEDGE[q_lower]
     
@@ -59,14 +60,16 @@ st.markdown("<h1 style='text-align: center; color: #FF4B4B;'>🚀 ORION AI (Gemi
 col1, col2 = st.columns([1, 5])
 with col1:
     ses_girdisi = speech_to_text(start_prompt="🎤", stop_prompt="⏹️", language='tr', key='voice')
+
 with col2:
-    yazi_girdisi = st.chat_input("Gemini'ye bir şey sor...")
+    # İSTEDİĞİN DEĞİŞİKLİK: Yazı Girişi Yazısı Güncellendi
+    yazi_girdisi = st.chat_input("ORION'a bir soru sor...")
 
 girdi = ses_girdisi if ses_girdisi else yazi_girdisi
 
 if girdi:
     st.chat_message("user").write(girdi)
-    with st.spinner("Gemini Pro düşünerek cevaplıyor..."):
+    with st.spinner("ORION düşünüyor..."):
         cevap_tr = get_answer(girdi)
         try:
             cevap_en = translator.translate(cevap_tr, src='tr', dest='en').text
@@ -77,6 +80,7 @@ if girdi:
             st.info(f"**TR:** {cevap_tr}")
             st.warning(f"**EN:** {cevap_en}")
 
+        # Web Seslendirme (JavaScript)
         safe_en = cevap_en.replace('"', '').replace("'", "")
         st.components.v1.html(f"""
             <script>
@@ -90,4 +94,5 @@ if girdi:
 # --- İLETİŞİM ---
 st.divider()
 with st.expander("📬 İletişim"):
+    st.write("Sorularınız ve fikirleriniz için:")
     st.code("iletisim.orionai@gmail.com", language="text")
