@@ -55,7 +55,7 @@ def get_answer(query):
         return "Şu an bağlantı kuramıyorum ama üzerinde çalışıyorum."
 
 # --- WEB ARAYÜZÜ ---
-st.markdown("<h1 style='text-align: center; color: #FF4B4B;'>🚀 ORION AI (Gemini Pro)</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #FF4B4B;'>🚀 ORION AI </h1>", unsafe_allow_html=True)
 
 col1, col2 = st.columns([1, 5])
 with col1:
