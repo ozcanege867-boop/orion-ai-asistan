@@ -100,12 +100,13 @@ if text:
         with col2:
             st.warning(f"**EN:** {cevap_en}")
         
-        # Web Seslendirme (JavaScript - Tırnak hataları düzeltildi)
+        # WEB SESLENDİRME (JavaScript - En Güçlü Versiyon)
         safe_en_text = cevap_en.replace('"', '').replace("'", "")
         st.components.v1.html(f"""
             <script>
+            window.speechSynthesis.cancel(); 
             var msg = new SpeechSynthesisUtterance("{safe_en_text}");
-            msg.lang = 'en-US';
+            msg.lang = "en-US";
             msg.rate = 0.9;
             window.speechSynthesis.speak(msg);
             </script>
