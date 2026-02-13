@@ -8,7 +8,7 @@ import pytz
 
 # --- GEMINI AYARI ---
 # Kendi API anahtarını buraya tırnak içine yapıştır
-MY_API_KEY = "BURAYA_API_ANAHTARINI_YAPISTIR"
+MY_API_KEY = "AIzaSyDQLCWp_Tq_mg1z9cqT78ABajV6jv5UT7I"
 
 try:
     genai.configure(api_key=MY_API_KEY)
