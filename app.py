@@ -49,7 +49,7 @@ def get_answer(query):
             return f"Üzgünüm, şu an bilgiye erişemiyorum. (Hata: {str(e)})"
 
 # --- WEB ARAYÜZÜ ---
-st.markdown("<h1 style='text-align: center; color: #FF4B4B;'>🚀 ORION AI (Gemini Pro)</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #FF4B4B;'>🚀 ORION AI </h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center;'>Bursa Bilim Şenliği 2026</p>", unsafe_allow_html=True)
 
 # Girdi Alanları
