@@ -7,10 +7,27 @@ from datetime import datetime
 import pytz
 
 # --- GEMINI AYARI ---
-# Kendi API anahtarını buraya tırnak içine yapıştır
+# API anahtarını buraya tırnak içine yapıştır
 GOOGLE_API_KEY = "AIzaSyDQLCWp_Tq_mg1z9cqT78ABajV6jv5UT7I"
-genai.configure(api_key=GOOGLE_API_KEY)
-model = genai.GenerativeModel('gemini-pro')
+
+try:
+    # Önce anahtarı ayarla
+    genai.configure(api_key=GOOGLE_API_KEY)
+    # Modeli 1.5-flash olarak güncelle (Daha hızlı ve günceldir)
+    model = genai.GenerativeModel('gemini-1.5-flash')
+except Exception as e:
+    st.error(f"Sistem başlatılamadı: {e}")
+
+def get_gemini_response(prompt):
+    """Sorguyu Gemini API'ye gönderir."""
+    try:
+        # Gemini'ye gönder
+        response = model.generate_content(f"Senin adın ORION. Bursa Bilim Şenliği asistanısın. Kısa ve net cevap ver: {prompt}")
+        return response.text
+    except Exception as e:
+        # Eğer bir hata olursa, hatayı ekranda gizlice logla veya göster
+        print(f"Gemini Hatası: {e}") 
+        return None
 
 # --- SAYFA VE DİL AYARLARI ---
 st.set_page_config(page_title="ORION AI", page_icon="🚀", layout="centered")
